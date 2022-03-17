@@ -116,7 +116,7 @@ def cargarExamen(name_exam,root_dir):
     semester = name_exam_split[4]
     row = name_exam_split[5]
     other = name_exam_split[6]
-    
+        
     #Construir nombre del directorio padre del examan de acuerdo a las variables university, subject, partial, year, semester, row, other, y establecer en variable name_parent_exam
     name_parent_exam = f'{university}_{subject}_{semester}_{other}' if partial == "" else f'{university}_{subject}_{partial}_{semester}_{other}'
     
