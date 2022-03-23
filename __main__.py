@@ -253,43 +253,44 @@ def edit(line_name,root_dir):
 @cli.command(help="prembulo precompilado")
 @click.argument('root_archive')
 def compilepreamble(root_archive):
+    root_archive = Path(root_archive.strip())
     #determinar el directorio del archivo root_archive.tex y establecer en la variable "root_dir"
     root_dir = Path(root_archive).parent
     #determinar el nombre del carpeta root_dir y establecer en la variable "name_dir"
     name_dir = root_dir.name
     #establecer el directorio "/root_dir/precompile.bat" y establecer en la variable "root_dir_precompile"
-    root_dir_precompile = Path(root_dir/'precompile.bat')
+    #determina si estoy en windows o linux
+    if os.name == 'nt':
+        root_dir_precompile = Path(root_dir/'precompile.bat')
+    else:
+        root_dir_precompile = Path(root_dir/'precompile.sh')
     #verificar si en el arhivo /root_archive.tex existe la cadena "\endofdump"
     #si existe, entonces, llamar a la funcion precompile(root_dir,name_dir,root_dir_precompile)
     if Path(root_archive).read_text().find("\\endofdump") != -1:
-        #ir a la carpeta root_dir y ejecutar el archivo precompile.bat
+        #ir a la carpeta root_dir y ejecutar el archivo root_dir_precompile
         os.chdir(root_dir)
-        subprocess.call(root_dir_precompile)
+        # subprocess.call(root_dir_precompile)
+        print("Precompilado exitoso")
     else:
-        # #entrar al archivo /root_archive.tex y escribir la cadena "\endofdump" al final del archivo "root_archive" y luego guardar y salir.
+        # entrar al archivo /root_archive.tex y escribir la cadena "\endofdump" al final del archivo "root_archive" y luego guardar y salir.
         with open(root_archive, 'a') as f:
             f.write("\\endofdump")
-        #crea el arhivo /root_dir/precompile.bat en root_dir
-        with open(root_dir_precompile, 'w') as f:
-            f.write('xelatex-dev.exe -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -ini -jobname="'+name_dir+'" "&xelatex-dev" mylatexformat.ltx "'+root_archive+'"')
-        #ir a la carpeta root_dir y ejecutar el archivo precompile.bat
-        os.chdir(root_dir)
-        subprocess.call(root_dir_precompile)
-        # entrar al arhivo /root_archive.tex y escribir la cadena "%&name_dir" en la linea cero y luego saltar a la linea siguiente
-        with open(root_archive,'r') as f:
-            lines = f.readlines()
-            lines.insert(0,'%&'+name_dir+'\n')
-            with open(root_archive,'w') as f:
-                f.writelines(lines)
-
-
+        f.close()
+        # #crea el arhivo /root_dir/precompile.bat en root_dir
+        # with open(root_dir_precompile, 'w') as f:
+        #     f.write('xelatex-dev.exe -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -ini -jobname="'+name_dir+'" "&xelatex-dev" mylatexformat.ltx "'+root_archive+'"')
+        # ir a la carpeta root_dir y ejecutar el archivo precompile.bat
+        # os.chdir(root_dir)
+        # # subprocess.call(root_dir_precompile)
+        # # entrar al arhivo /root_archive.tex y escribir la cadena "%&name_dir" en la linea cero y luego saltar a la linea siguiente
+        # with open(root_archive,'r') as f:
+        #     lines = f.readlines()
+        #     lines.insert(0,'%&'+name_dir+'\n')
+        #     with open(root_archive,'w') as f:
+        #         f.writelines(lines)
 
 if __name__ == "__main__":
     cli()
-
-
- 
-
 
 
 
