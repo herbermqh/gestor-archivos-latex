@@ -65,6 +65,7 @@ def create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_c
     Path(root_dir_name_book/f'{name_book_chapter}.latexmain').touch()
     #copiar la carpeta "/roo_dir_latex/plantillas/LibroEjercicios/IMAGES-CAPITULO/" a "/root_dir_name_book/IMAGES-name_book_chapter"
     shutil.copytree(root_dir_latex/'plantillas'/'LibroEjercicios'/'IMAGES-CAPITULO',root_dir_name_book/f'IMAGES-{name_book_chapter}')
+
 #definiendo funcion cargarProblemas(name_book,name_book_chapter,root_dir)
 def cargarProblemas(name_book,name_book_chapter,root_dir):
     #Deteminar el directorio de main.tex y establecer en variable "root_dir_main"
@@ -96,7 +97,7 @@ def cargarProblemas(name_book,name_book_chapter,root_dir):
         Path(root_dir_name_book/f'{name_book}.latexmain').touch()
         #crear el capitulo
         create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter)
-        print("Libro y capitulo creado existosamente")
+        print("Libro y capitulo creados exitosamente")
 
 # UMSA-FIS-1-2008-I-A-cpf
 # type directory: \cargarExamen
@@ -248,6 +249,40 @@ def create(line_name,root_dir):
 @click.argument('root_dir')
 def edit(line_name,root_dir):
     print("No implementado")
+
+@cli.command(help="prembulo precompilado")
+@click.argument('root_archive')
+def compilepreamble(root_archive):
+    #determinar el directorio del archivo root_archive.tex y establecer en la variable "root_dir"
+    root_dir = Path(root_archive).parent
+    #determinar el nombre del carpeta root_dir y establecer en la variable "name_dir"
+    name_dir = root_dir.name
+    #establecer el directorio "/root_dir/precompile.bat" y establecer en la variable "root_dir_precompile"
+    root_dir_precompile = Path(root_dir/'precompile.bat')
+    #verificar si en el arhivo /root_archive.tex existe la cadena "\endofdump"
+    #si existe, entonces, llamar a la funcion precompile(root_dir,name_dir,root_dir_precompile)
+    if Path(root_archive).read_text().find("\\endofdump") != -1:
+        #ir a la carpeta root_dir y ejecutar el archivo precompile.bat
+        os.chdir(root_dir)
+        subprocess.call(root_dir_precompile)
+    else:
+        # #entrar al archivo /root_archive.tex y escribir la cadena "\endofdump" al final del archivo "root_archive" y luego guardar y salir.
+        with open(root_archive, 'a') as f:
+            f.write("\\endofdump")
+        #crea el arhivo /root_dir/precompile.bat en root_dir
+        with open(root_dir_precompile, 'w') as f:
+            f.write('xelatex-dev.exe -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -ini -jobname="'+name_dir+'" "&xelatex-dev" mylatexformat.ltx "'+root_archive+'"')
+        #ir a la carpeta root_dir y ejecutar el archivo precompile.bat
+        os.chdir(root_dir)
+        subprocess.call(root_dir_precompile)
+        # entrar al arhivo /root_archive.tex y escribir la cadena "%&name_dir" en la linea cero y luego saltar a la linea siguiente
+        with open(root_archive,'r') as f:
+            lines = f.readlines()
+            lines.insert(0,'%&'+name_dir+'\n')
+            with open(root_archive,'w') as f:
+                f.writelines(lines)
+
+
 
 if __name__ == "__main__":
     cli()
