@@ -256,6 +256,7 @@ def compilepreamble(root_archive):
     root_archive = Path(root_archive.strip())
     #determinar el directorio del archivo root_archive.tex y establecer en la variable "root_dir"
     root_dir = Path(root_archive).parent
+    os.chdir(root_dir)
     #determinar el nombre del carpeta root_dir y establecer en la variable "name_dir"
     name_dir = root_dir.name
     #establecer el directorio "/root_dir/precompile.bat" y establecer en la variable "root_dir_precompile"
