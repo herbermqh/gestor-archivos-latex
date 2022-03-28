@@ -278,7 +278,7 @@ def compilepreamble(root_archive):
        f.close()
        #crea el arhivo root_dir_precompile  y escribir xelatex-dev.exe -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -ini -jobname="name_dir" "&xelatex-dev" mylatexformat.ltx root_archive
        with open(root_dir_precompile, 'w') as f:
-           f.write(f'xelatex-dev -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -ini -jobname="{name_dir}" "&xelatex-dev" mylatexformat.ltx {root_archive}')
+           f.write(f'xelatex-dev -ini -synctex=1 -interaction=nonstopmode --enable-write18 -shell-escape -jobname="{name_dir}" "&xelatex-dev" mylatexformat.ltx {root_archive}')
        f.close()
        # ir a la carpeta root_dir y ejecutar el archivo precompile.bat
        os.chdir(root_dir)
