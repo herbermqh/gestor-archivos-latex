@@ -14,7 +14,6 @@ from conans import ConanFile, AutoToolsBuildEnvironment
 from conans.tools import download, untargz, check_sha1, replace_in_file, environment_append
 # required pip install conan_package_tools
 
-
 # type directory: \capitulo
 #definiendo funcion capitulo.
 def capitulo(name_chapter,root_dir):
@@ -48,23 +47,37 @@ def capitulo(name_chapter,root_dir):
         #cambiar el nombre del archivo RESUMEN-.tex por RESUMEN-name_chapter.tex en el directorio root_dir_main_chapter.
         os.rename(root_dir_main_chapter/'RESUMEN-.tex',root_dir_main_chapter/f'RESUMEN-{name_chapter}.tex')
         #crear archivo "/root_dir_main_chapter/TEORIA-name_chapter.latexmain"
-        Path(root_dir_main_chapter/f'TEORIA-{name_chapter}.latexmain').touch()
-        Path(root_dir_main_chapter/f'PR-{name_chapter}.latexmain').touch()
-        Path(root_dir_main_chapter/f'PP-{name_chapter}.latexmain').touch()
-        Path(root_dir_main_chapter/f'FORMULARIO-{name_chapter}.latexmain').touch()
-        Path(root_dir_main_chapter/f'RESUMEN-{name_chapter}.latexmain').touch()
+        # Path(root_dir_main_chapter/f'TEORIA-{name_chapter}.latexmain').touch()
+        # Path(root_dir_main_chapter/f'PR-{name_chapter}.latexmain').touch()
+        # Path(root_dir_main_chapter/f'PP-{name_chapter}.latexmain').touch()
+        # Path(root_dir_main_chapter/f'FORMULARIO-{name_chapter}.latexmain').touch()
+        # Path(root_dir_main_chapter/f'RESUMEN-{name_chapter}.latexmain').touch()
         print("Capitulo creado exitosamente")
 
             
 
 # type directory: \cargarProblemas
-def create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter):
+def exercice_chapter(root_dir_latex,root_dir_name_book,name_book_chapter):
     #copiar el archivo "/root_dir_latex/plantillas/LibroEjercicios/CAPITULO.tex" en el directorio "/root_dir_name_book/" cambiando de nombre a "name_book_chapter"
-    shutil.copy(root_dir_latex/'plantillas'/'LibroEjercicios'/'CAPITULO.tex',root_dir_name_book/f'{name_book_chapter}.tex')
-    #crear archivo "/root_dir_name_book/name_book_chapter.latexmain"
-    Path(root_dir_name_book/f'{name_book_chapter}.latexmain').touch()
-    #copiar la carpeta "/roo_dir_latex/plantillas/LibroEjercicios/IMAGES-CAPITULO/" a "/root_dir_name_book/IMAGES-name_book_chapter"
-    shutil.copytree(root_dir_latex/'plantillas'/'LibroEjercicios'/'IMAGES-CAPITULO',root_dir_name_book/f'IMAGES-{name_book_chapter}')
+    # no exixte el directorio "/root_dir_name_book/name_book_chapter.tex"
+    if not exists(root_dir_name_book/f'{name_book_chapter}.tex'):
+        shutil.copy(root_dir_latex/'plantillas'/'LibroEjercicios'/'CAPITULO.tex',root_dir_name_book/f'{name_book_chapter}.tex')
+
+def exercice_chapter_images(root_dir_latex,root_dir_name_book,name_book_chapter):
+    #copiar el archivo "/root_dir_latex/plantillas/LibroEjercicios/IMAGES-CAPITULO" en el directorio "/root_dir_name_book/" cambiando de nombre a "name_book_chapter"
+    if not exists(root_dir_name_book/f'IMAGES-{name_book_chapter}'):
+        shutil.copytree(root_dir_latex/'plantillas'/'LibroEjercicios'/'IMAGES-CAPITULO',root_dir_name_book/f'IMAGES-{name_book_chapter}')
+
+def exercice_chapter_jupyter(root_dir_latex,root_dir_name_book,name_book_chapter):
+    #copiar el archivo "/root_dir_latex/plantillas/LibroEjercicios/JUPY-CAPITULO" en el directorio "/root_dir_name_book/JUPY-name_book_chapter" si no existe.
+    if not exists(root_dir_name_book/f'JUPY-{name_book_chapter}'):
+        shutil.copytree(root_dir_latex/'plantillas'/'LibroEjercicios'/'JUPY-CAPITULO',root_dir_name_book/f'JUPY-{name_book_chapter}')
+
+def create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter):
+    exercice_chapter(root_dir_latex,root_dir_name_book,name_book_chapter)
+    exercice_chapter_images(root_dir_latex,root_dir_name_book,name_book_chapter)
+    exercice_chapter_jupyter(root_dir_latex,root_dir_name_book,name_book_chapter)
+
 
 #definiendo funcion cargarProblemas(name_book,name_book_chapter,root_dir)
 def cargarProblemas(name_book,name_book_chapter,root_dir):
@@ -76,28 +89,25 @@ def cargarProblemas(name_book,name_book_chapter,root_dir):
     root_dir_latex = Path(root_dir_subject).parent
     #Establecer el directorio /root_dir_subject/problemas-libros/name_book/ en root_dir_name_book
     root_dir_name_book = Path(root_dir_subject/'problemas-libros'/name_book)
-    #Determinar si existe existe el directorio "root_dir_name_book"
-    if exists(root_dir_name_book):
-        #determinar si existe la el arhivo "/root_dir_name_book/name_book_chapter.tex"
-        if exists(root_dir_name_book/f'{name_book_chapter}.tex'):
-           print("Libro y capitulo ya existen")
-            #si no existe,
-        else:
-            # print("El capitulo no se encuentra creado")
-            #crear el capitulo
-            create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter)
-            print("Capitulo creado exitosamente")
-    else:
-        # print("El libro no existe")
-        #crear carpeta "/root_dir_name_book/"
-        os.mkdir(root_dir_name_book)
-        #copiar "/root_dir_latex/plantillas/LibroEjercicios/main.tex" a "/root_dir_name_book/name_book.tex"
+    #crear carpeta libro ejercicios si no existe
+    if not exists(root_dir_name_book):
+        os.makedirs(root_dir_name_book)
+    #crea libre.tex si no existe
+    if not exists(root_dir_name_book/f'{name_book_chapter}.tex'):
         shutil.copy(root_dir_latex/'plantillas'/'LibroEjercicios'/'main.tex',root_dir_name_book/f'{name_book}.tex')
-        #crear archivo "/root_dir_name_book/name_book.latexmain"
         Path(root_dir_name_book/f'{name_book}.latexmain').touch()
-        #crear el capitulo
-        create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter)
-        print("Libro y capitulo creados exitosamente")
+    #buscar la cadena "name_book_chapter" en el archivo name_book.tex
+    if name_book_chapter not in open(root_dir_name_book/f'{name_book}.tex').read():
+        with open(root_dir_name_book/f'{name_book}.tex','r') as file:
+            lines = file.readlines()
+        with open(root_dir_name_book/f'{name_book}.tex','w') as file:
+            for line in lines:
+                if line == '\\end{document}\n':
+                    file.write('\\capitulo[2]{'+name_book_chapter+'}\n\\end{document}\n')
+                else:
+                    file.write(line)
+        file.close()
+    create_libroEjercicios_chapter(root_dir_latex,root_dir_name_book,name_book_chapter)
 
 # UMSA-FIS-1-2008-I-A-cpf
 # type directory: \cargarExamen
